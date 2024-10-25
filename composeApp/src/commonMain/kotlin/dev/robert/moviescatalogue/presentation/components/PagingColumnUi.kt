@@ -27,7 +27,6 @@ import okio.IOException
 @Composable
 fun <T : Any> PagingColumnUi(
     data: LazyPagingItems<T>,
-    title: String = "",
     content: @Composable (T) -> Unit
 ) {
     LazyVerticalGrid(
@@ -38,28 +37,6 @@ fun <T : Any> PagingColumnUi(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        item(
-            span = {
-                GridItemSpan(maxLineSpan)
-            }
-        ) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 18.sp
-                    )
-                }
-            }
-        }
-
         items(data.itemCount) { index ->
             val item = data[index]
             item?.let { content(it) }

@@ -1,40 +1,81 @@
 package dev.robert.moviescatalogue.presentation.tvshows
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.collectAsLazyPagingItems
 import dev.robert.moviescatalogue.domain.model.Movie
+import dev.robert.moviescatalogue.presentation.components.CategoryItem
 import dev.robert.moviescatalogue.presentation.components.MovieItem
 import dev.robert.moviescatalogue.presentation.components.PagingColumnUi
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ShowsScreen(
     modifier: Modifier = Modifier,
     onNavigateToDetails: (Movie) -> Unit,
-    viewModel: ShowsScreenViewModel = koinInject()
+    viewModel: ShowsScreenViewModel = koinViewModel()
 ) {
-    val shows = viewModel.trendingTvSeries.collectAsLazyPagingItems()
+    val trendingShows = viewModel.trendingTvSeries.collectAsLazyPagingItems()
+    val airingToday = viewModel.airingToday.collectAsLazyPagingItems()
+    val popularSeries = viewModel.popularSeries.collectAsLazyPagingItems()
     ShowScreenContent(
-        shows = shows,
+        trendingShows = trendingShows,
+        airingToday = airingToday,
+        popularSeries = popularSeries,
         onShowClick = onNavigateToDetails
     )
 }
 
 @Composable
 fun ShowScreenContent(
-    shows: LazyPagingItems<Movie>,
+    trendingShows: LazyPagingItems<Movie>,
+    airingToday: LazyPagingItems<Movie>,
+    popularSeries: LazyPagingItems<Movie>,
     modifier: Modifier = Modifier,
     onShowClick: (Movie) -> Unit
 ) {
-
-    PagingColumnUi(
-        title = "Trending TV Shows",
-        data = shows,
-        content = { show ->
-            MovieItem(movie = show, onMovieClick = onShowClick)
-        }
+    val categories = listOf(
+        "Trending Series" to trendingShows,
+        "Airing Today" to airingToday,
+        "Popular Series" to popularSeries
     )
+
+    var selectedCategory by remember { mutableStateOf(categories.first()) }
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(categories.size) { index ->
+                val (category, _) = categories[index]
+                CategoryItem(
+                    category = category,
+                    isSelected = category == selectedCategory.first,
+                    onCategorySelected = { selectedCategory = categories[index] }
+                )
+            }
+        }
+        PagingColumnUi(
+            data = selectedCategory.second,
+            content = { movie ->
+                MovieItem(movie = movie, onMovieClick = onShowClick)
+            }
+        )
+    }
 
 }

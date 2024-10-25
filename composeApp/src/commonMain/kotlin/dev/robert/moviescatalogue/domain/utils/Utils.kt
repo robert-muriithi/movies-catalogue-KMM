@@ -1,9 +1,8 @@
 package dev.robert.moviescatalogue.domain.utils
 
-import dev.robert.moviescatalogue.data.api.constants.Constants.IMAGE_BASE_URL
+import dev.robert.moviescatalogue.data.constants.Constants.IMAGE_BASE_URL
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.Json.Default.encodeToString
 
 
 fun String.createImageUrl(): String {

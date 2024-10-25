@@ -33,7 +33,7 @@ fun NetworkImage(
         model =
         ImageRequest
             .Builder(LocalPlatformContext.current)
-            .data(imageUrl)
+            .data( imageUrl)
             .build(),
         loading = {
             Box(contentAlignment = Alignment.Center) {

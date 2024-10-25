@@ -1,7 +1,5 @@
 package dev.robert.moviescatalogue.presentation.navigation
 
-import dev.robert.moviescatalogue.data.api.dto.MovieResponse
-import dev.robert.moviescatalogue.domain.model.Movie
 import kotlinx.serialization.Serializable
 import movies_catalogue.composeapp.generated.resources.Res
 import movies_catalogue.composeapp.generated.resources.ic_bookmark_boarder

@@ -19,5 +19,7 @@ data class Movie(
     val video: Boolean,
     val voteAverage: Double,
     val voteCount: Int,
-    val type : String = "movie"
+    val mediaType: String,
+    val firstAirDate: String,
+    val name: String
 )

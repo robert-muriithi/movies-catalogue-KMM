@@ -1,12 +1,8 @@
 package dev.robert.moviescatalogue
 
 import androidx.compose.ui.window.ComposeUIViewController
-import dev.robert.moviescatalogue.di.KoinInitializer
+import dev.robert.moviescatalogue.di.initializeKoin
 
 fun MainViewController() = ComposeUIViewController(
-    configure = {
-        KoinInitializer().initialize()
-    }
-) {
-    App()
-}
+    configure = { initializeKoin() }
+) { App() }

@@ -54,13 +54,14 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 import org.koin.compose.currentKoinScope
+import org.koin.dsl.module
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 @Preview
 fun App() {
-    KoinContext {
-        AppTheme {
+    AppTheme {
+        KoinContext {
             setSingletonImageLoaderFactory { context ->
                 getAsyncImageLoader(context)
             }

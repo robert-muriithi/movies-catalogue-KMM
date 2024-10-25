@@ -23,35 +23,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.paging.PagingData
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.collectAsLazyPagingItems
 import dev.robert.moviescatalogue.domain.model.Movie
-import dev.robert.moviescatalogue.presentation.components.HotMoviesHorizontalPager
+import org.koin.compose.viewmodel.koinViewModel
+import dev.robert.moviescatalogue.presentation.components.TrendingMoviesHorizontalPager
 import dev.robert.moviescatalogue.presentation.components.MovieItem
 import dev.robert.moviescatalogue.presentation.components.PagingRowUi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import org.koin.compose.koinInject
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     onNavigateToMovieDetails: (Movie) -> Unit,
-    viewModel: HomeScreenViewModel = koinInject()
 ) {
-
-    val discoverMovies = viewModel.discoverMovies.collectAsLazyPagingItems()
-    val discoverSeries = viewModel.discoverSeries.collectAsLazyPagingItems()
+    val viewModel = koinViewModel<HomeScreenViewModel>()
+    val weeklyTrending = viewModel.weeklyTrending.collectAsLazyPagingItems()
     val topRatedTvSeries = viewModel.topRatedTvSeries.collectAsLazyPagingItems()
     val topRatedMovies = viewModel.topRatedMovies.collectAsLazyPagingItems()
     val upcomingMovies = viewModel.upcomingMovies.collectAsLazyPagingItems()
 
 
     HomeScreenContent(
-        discover = discoverMovies,
+        discover = weeklyTrending,
         topRatedMovies = topRatedMovies,
         topRatedTvSeries = topRatedTvSeries,
         upcomingMovies = upcomingMovies,
@@ -94,13 +89,14 @@ fun HomeScreenContent(
                         .padding(horizontal = 8.dp),
                 ) {
                     Text(
-                        text = "Discover Movies",
+                        text = "Weekly Trending Movies",
                         style = TextStyle(
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
                         )
                     )
-                    HotMoviesHorizontalPager(
-                        todayTrendingMovies = discover,
+                    TrendingMoviesHorizontalPager(
+                        weeksTrending = discover,
                         onMovieClick = onMovieClick
                     )
                 }
@@ -118,7 +114,8 @@ fun HomeScreenContent(
                         Text(
                             text = "Top Rated Movies",
                             style = TextStyle(
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
                             )
                         )
                         TextButton(
@@ -158,7 +155,8 @@ fun HomeScreenContent(
                         Text(
                             text = "Top Rated TV Series",
                             style = TextStyle(
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
                             )
                         )
                         TextButton(
@@ -198,7 +196,8 @@ fun HomeScreenContent(
                         Text(
                             text = "Upcoming Movies",
                             style = TextStyle(
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
                             )
                         )
                         TextButton(
