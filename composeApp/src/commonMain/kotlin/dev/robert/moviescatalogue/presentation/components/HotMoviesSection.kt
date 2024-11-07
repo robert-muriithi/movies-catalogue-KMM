@@ -1,6 +1,9 @@
 package dev.robert.moviescatalogue.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -36,9 +39,9 @@ import dev.robert.moviescatalogue.domain.utils.createImageUrl
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun TrendingMoviesHorizontalPager(
+fun SharedTransitionScope.TrendingMoviesHorizontalPager(
     modifier: Modifier = Modifier,
     onMovieClick: (Movie) -> Unit,
     weeksTrending: LazyPagingItems<Movie>,
@@ -114,6 +117,7 @@ fun TrendingMoviesHorizontalPager(
                     modifier =
                     Modifier
                         .fillMaxSize()
+
                 )
             }
             AnimatedVisibility(visible = pagerState.currentPage == page) {

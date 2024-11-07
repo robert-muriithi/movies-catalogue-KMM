@@ -20,6 +20,9 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import movies_catalogue.composeapp.generated.resources.Res
+import movies_catalogue.composeapp.generated.resources.placeholder
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun NetworkImage(

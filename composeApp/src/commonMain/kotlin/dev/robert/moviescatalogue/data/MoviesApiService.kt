@@ -124,9 +124,10 @@ class MoviesApiServiceImpl(
         }
     }
 
-    override suspend fun getMovieDetails(movieId: Int): MovieDetailsResponse {
+    override suspend fun getMovieDetails(movieId: Int, isMovie: Boolean): MovieDetailsResponse {
         return try {
-            httpClient.get("${BASEURL}movie/$movieId") {
+            val url = if (isMovie) "movie" else "tv"
+            httpClient.get("${BASEURL}$url/$movieId") {
                 parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
                 parameter("language", "en")
             }.body()
@@ -135,31 +136,11 @@ class MoviesApiServiceImpl(
         }
     }
 
-    override suspend fun getTvSeriesDetails(tvSeriesId: Int): MovieDetailsResponse {
-        return try{
-            httpClient.get("${BASEURL}tv/$tvSeriesId"){
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
-                parameter("language", "en")
-            }.body()
-        }catch (e: Exception){
-            throw e
-        }
-    }
 
-    override suspend fun getTvSeriesCredits(tvSeriesId: Int): CreditsResponse {
+    override suspend fun getMovieCredits(isMovie: Boolean, movieId: Int): CreditsResponse {
+        val url = if (isMovie) "movie" else "tv"
         return try {
-            httpClient.get("${BASEURL}tv/$tvSeriesId/credits"){
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
-                parameter("language", "en")
-            }.body()
-        }catch (e: Exception){
-            throw e
-        }
-    }
-
-    override suspend fun getMovieCredits(movieId: Int): CreditsResponse {
-        return try {
-            httpClient.get("${BASEURL}movie/$movieId/credits"){
+            httpClient.get("${BASEURL}$url/$movieId/credits"){
                 parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
                 parameter("language", "en")
             }.body()
@@ -192,7 +173,7 @@ class MoviesApiServiceImpl(
         }
     }
 
-    override suspend fun searchMovies(query: String, page: Int): MultiSearchResponse {
+    override suspend fun multiSearch(query: String, page: Int): MultiSearchResponse {
         return try {
             httpClient.get("${BASEURL}search/multi"){
                 parameter("page", page)
@@ -228,9 +209,10 @@ class MoviesApiServiceImpl(
         }
     }
 
-    override suspend fun getMovieReviews(movieId: Int, page: Int): ReviewResponse {
+    override suspend fun getMovieReviews(isMovie: Boolean, movieId: Int, page: Int): ReviewResponse {
+        val url = if (isMovie) "movie" else "tv"
         return try {
-            httpClient.get("${BASEURL}movie/$movieId/reviews"){
+            httpClient.get("${BASEURL}$url/$movieId/reviews"){
                 parameter("page", page)
                 parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
                 parameter("language", "en")
@@ -240,9 +222,10 @@ class MoviesApiServiceImpl(
         }
     }
 
-    override suspend fun getSimilarMovies(movieId: Int, page: Int): MoviesResponse {
+    override suspend fun getSimilarMovies(isMovie: Boolean, movieId: Int, page: Int): MoviesResponse {
+        val url = if (isMovie) "movie" else "tv"
         return try {
-            httpClient.get("${BASEURL}movie/$movieId/similar") {
+            httpClient.get("${BASEURL}$url/$movieId/similar") {
                 parameter("page", page)
                 parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
                 parameter("language", "en")

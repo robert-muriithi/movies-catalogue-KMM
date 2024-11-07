@@ -1,5 +1,9 @@
 package dev.robert.moviescatalogue.presentation.movies
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -42,8 +46,10 @@ import dev.robert.moviescatalogue.presentation.components.PagingColumnUi
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MoviesScreen(
+fun SharedTransitionScope.MoviesScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     onNavigateToDetails: (Movie) -> Unit,
     viewModel: MoviesScreenViewModel = koinViewModel()
@@ -55,18 +61,23 @@ fun MoviesScreen(
         nowPlayingMovies = nowPlayingMovies,
         popularMovies = popularMovies,
         trendingMovies = trendingMovies,
-        onShowClick = onNavigateToDetails
+        onShowClick = onNavigateToDetails,
+        animatedVisibilityScope = animatedVisibilityScope,
+        modifier = modifier
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MoviesScreenContent(
+fun SharedTransitionScope.MoviesScreenContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     nowPlayingMovies: LazyPagingItems<Movie>,
     popularMovies: LazyPagingItems<Movie>,
     trendingMovies: LazyPagingItems<Movie>,
     modifier: Modifier = Modifier,
     onShowClick: (Movie) -> Unit
 ) {
+//    val string = R.string.app_name
     val categories = listOf(
         "Now Playing" to nowPlayingMovies,
         "Popular Movies" to popularMovies,
@@ -75,7 +86,7 @@ fun MoviesScreenContent(
     var selectedCategory by remember { mutableStateOf(categories.first()) }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -93,7 +104,7 @@ fun MoviesScreenContent(
         PagingColumnUi(
             data = selectedCategory.second,
             content = { movie ->
-                MovieItem(movie = movie, onMovieClick = onShowClick)
+                MovieItem(movie = movie, onMovieClick = onShowClick, animatedVisibilityScope = animatedVisibilityScope, sharedTransitionKey = movie.posterPath +"/" + movie.id)
             }
         )
     }

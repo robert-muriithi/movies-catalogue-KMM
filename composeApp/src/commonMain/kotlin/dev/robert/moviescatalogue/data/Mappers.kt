@@ -4,7 +4,9 @@ import dev.robert.moviescatalogue.data.dto.CastResponse
 import dev.robert.moviescatalogue.data.dto.GenreDto
 import dev.robert.moviescatalogue.data.dto.MovieDetailsResponse
 import dev.robert.moviescatalogue.data.dto.MovieResponse
+import dev.robert.moviescatalogue.data.dto.MovieResult
 import dev.robert.moviescatalogue.data.dto.MovieReviewResponse
+import dev.robert.moviescatalogue.data.dto.TvShowResult
 import dev.robert.moviescatalogue.data.entity.SavedMovie
 import dev.robert.moviescatalogue.domain.model.Genre
 import dev.robert.moviescatalogue.domain.model.Movie
@@ -28,7 +30,7 @@ fun MovieResponse.toMovie() = Movie(
     video = video ?: false,
     voteAverage = voteAverage ?: 0.0,
     voteCount = voteCount ?: 0,
-    mediaType = mediaType ?: "",
+//    mediaType = mediaType ?: "",
     firstAirDate = firstAirDate ?: "",
     name = name ?: ""
 )
@@ -59,7 +61,6 @@ fun List<GenreDto>.toGenres() = map { it.toGenre() }
 
 fun MovieReviewResponse.toReview() = MovieReview(
     author = author,
-    reviewAuthorDetails = reviewAuthorDetails,
     content = content,
     createdAt = createdAt,
     id = id,
@@ -96,14 +97,13 @@ fun SavedMovie.toMovie() = Movie(
     video = false,
     voteAverage = voteAverage,
     voteCount = voteCount,
-    mediaType = mediaType ?: "",
+//    mediaType = mediaType ?: "",
     firstAirDate = firstAirDate ?: "",
     name = name ?: ""
 )
 
 fun CastResponse.toMovieCast() = MovieCast(
     adult = adult,
-    castId = castId,
     character = character,
     creditId = creditId,
     gender = gender,
@@ -112,7 +112,48 @@ fun CastResponse.toMovieCast() = MovieCast(
     name = name,
     order = order,
     originalName = originalName,
-    popularity = popularity
+    popularity = popularity,
+    profilePath = profilePath ?: ""
 )
 
 fun List<CastResponse>.toMovieCasts() = map { it.toMovieCast() }
+
+fun MovieResult.toMovie() = Movie(
+    adult = adult,
+    backdropPath = backdropPath ?: "",
+    genreIds = genreIds,
+    id = id,
+    originalLanguage = originalLanguage,
+    originalTitle = originalTitle,
+    overview = overview,
+    popularity = popularity,
+    posterPath = posterPath ?: "",
+    releaseDate = releaseDate,
+    title = title,
+    video = video,
+    voteAverage = voteAverage,
+    voteCount = voteCount,
+//    mediaType = mediaType,
+    firstAirDate = "",
+    name = ""
+)
+
+fun TvShowResult.toMovie() = Movie(
+    adult = adult,
+    backdropPath = backdropPath ?: "",
+    genreIds = genreIds,
+    id = id,
+    originalLanguage = originalLanguage,
+    originalTitle = "",
+    overview = overview,
+    popularity = popularity,
+    posterPath = posterPath ?: "",
+    releaseDate = "",
+    title = "",
+    video = false,
+    voteAverage = voteAverage,
+    voteCount = voteCount,
+//    mediaType = mediaType,
+    firstAirDate = firstAirDate,
+    name = name
+)

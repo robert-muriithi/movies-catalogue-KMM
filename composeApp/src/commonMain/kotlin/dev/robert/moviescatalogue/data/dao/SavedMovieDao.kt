@@ -17,4 +17,10 @@ interface SavedMovieDao {
 
     @Query("DELETE FROM saved WHERE id = :id")
     suspend fun delete(id: Int)
+
+//    @Query("SELECT * FROM saved WHERE id = :id")
+//    fun getMovieById(id: Int): Flow<SavedMovie>
+
+    @Query("SELECT EXISTS (SELECT 1 FROM saved WHERE id = :id)")
+    fun isSaved(id: Int): Flow<Boolean>
 }

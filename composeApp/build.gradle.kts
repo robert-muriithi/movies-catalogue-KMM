@@ -105,7 +105,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.0.1-alpha"
     }
     packaging {
         resources {
@@ -115,6 +115,9 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+        }
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
         }
     }
     compileOptions {

@@ -19,7 +19,7 @@ data class Movie(
     val video: Boolean,
     val voteAverage: Double,
     val voteCount: Int,
-    val mediaType: String,
+    val mediaType: String = if (releaseDate.isEmpty()) "tv" else "movie",
     val firstAirDate: String,
     val name: String
 )

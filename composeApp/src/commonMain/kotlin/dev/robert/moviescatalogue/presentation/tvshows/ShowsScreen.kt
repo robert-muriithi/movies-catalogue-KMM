@@ -1,5 +1,8 @@
 package dev.robert.moviescatalogue.presentation.tvshows
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,8 +24,10 @@ import dev.robert.moviescatalogue.presentation.components.PagingColumnUi
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ShowsScreen(
+fun SharedTransitionScope.ShowsScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
     onNavigateToDetails: (Movie) -> Unit,
     viewModel: ShowsScreenViewModel = koinViewModel()
@@ -34,12 +39,16 @@ fun ShowsScreen(
         trendingShows = trendingShows,
         airingToday = airingToday,
         popularSeries = popularSeries,
-        onShowClick = onNavigateToDetails
+        onShowClick = onNavigateToDetails,
+        animatedVisibilityScope = animatedVisibilityScope,
+        modifier = modifier
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ShowScreenContent(
+fun SharedTransitionScope.ShowScreenContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     trendingShows: LazyPagingItems<Movie>,
     airingToday: LazyPagingItems<Movie>,
     popularSeries: LazyPagingItems<Movie>,
@@ -55,7 +64,7 @@ fun ShowScreenContent(
     var selectedCategory by remember { mutableStateOf(categories.first()) }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -73,7 +82,7 @@ fun ShowScreenContent(
         PagingColumnUi(
             data = selectedCategory.second,
             content = { movie ->
-                MovieItem(movie = movie, onMovieClick = onShowClick)
+                MovieItem(movie = movie, onMovieClick = onShowClick, animatedVisibilityScope = animatedVisibilityScope, sharedTransitionKey = movie.posterPath +"/" + movie.id)
             }
         )
     }

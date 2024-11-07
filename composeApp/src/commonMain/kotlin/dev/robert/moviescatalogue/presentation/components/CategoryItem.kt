@@ -39,7 +39,7 @@ fun CategoryItem(
             text = category,
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            fontSize = 16.sp
+            fontSize = 13.sp
         )
 
         val lineColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)

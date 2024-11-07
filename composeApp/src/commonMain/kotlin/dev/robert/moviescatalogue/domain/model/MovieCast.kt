@@ -3,7 +3,6 @@ package dev.robert.moviescatalogue.domain.model
 
 data class MovieCast (
     val adult: Boolean,
-    val castId: Int,
     val character: String,
     val creditId: String,
     val gender: Int,

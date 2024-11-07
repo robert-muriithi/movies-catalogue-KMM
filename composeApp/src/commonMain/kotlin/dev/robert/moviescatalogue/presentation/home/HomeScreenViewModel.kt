@@ -3,6 +3,7 @@ package dev.robert.moviescatalogue.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.paging.PagingData
+import app.cash.paging.cachedIn
 import dev.robert.moviescatalogue.domain.model.Movie
 import dev.robert.moviescatalogue.domain.usecase.GetTrendingUseCase
 import dev.robert.moviescatalogue.domain.usecase.TopRatedMovies
@@ -20,6 +21,7 @@ class HomeScreenViewModel(
 ) : ViewModel(){
 
     val weeklyTrending : StateFlow<PagingData<Movie>> = trendingUseCase()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -27,6 +29,7 @@ class HomeScreenViewModel(
         )
 
     val topRatedTvSeries = topRatedTvSeries()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -34,6 +37,7 @@ class HomeScreenViewModel(
         )
 
     val topRatedMovies = topRatedMovies()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -41,6 +45,7 @@ class HomeScreenViewModel(
         )
 
     val upcomingMovies = upcomingMovies()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

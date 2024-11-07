@@ -18,15 +18,13 @@ interface ApiService {
     suspend fun getNowPlayingMovies(page: Int = INITIAL_PAGE) : MoviesResponse
     suspend fun getTrendingTvSeries(page: Int = INITIAL_PAGE) : MoviesResponse
     suspend fun getTopRatedTvSeries(page: Int = INITIAL_PAGE) : MoviesResponse
-    suspend fun getMovieDetails(movieId: Int) : MovieDetailsResponse
-    suspend fun getTvSeriesDetails(tvSeriesId: Int) : MovieDetailsResponse
-    suspend fun getTvSeriesCredits(tvSeriesId: Int) : CreditsResponse
-    suspend fun getMovieCredits(movieId: Int) : CreditsResponse
+    suspend fun getMovieDetails(movieId: Int, isMovie: Boolean) : MovieDetailsResponse
+    suspend fun getMovieCredits(isMovie: Boolean, movieId: Int) : CreditsResponse
     suspend fun getMovieGenres() : GenresResponse
     suspend fun getTvSeriesGenres() : GenresResponse
-    suspend fun searchMovies(query: String, page: Int = INITIAL_PAGE) : MultiSearchResponse
-    suspend fun getMovieReviews(movieId: Int, page: Int = INITIAL_PAGE) : ReviewResponse
-    suspend fun getSimilarMovies(movieId: Int, page: Int = INITIAL_PAGE) : MoviesResponse
+    suspend fun multiSearch(query: String, page: Int = INITIAL_PAGE) : MultiSearchResponse
+    suspend fun getMovieReviews(isMovie: Boolean, movieId: Int, page: Int = INITIAL_PAGE) : ReviewResponse
+    suspend fun getSimilarMovies(isMovie: Boolean, movieId: Int, page: Int = INITIAL_PAGE) : MoviesResponse
     suspend fun getAllTrending(page: Int = INITIAL_PAGE, window: String = "day") : MoviesResponse
     suspend fun getPopularTvShows(page: Int = INITIAL_PAGE) : MoviesResponse
     suspend fun getAirTodayTvShows(page: Int = INITIAL_PAGE) : MoviesResponse

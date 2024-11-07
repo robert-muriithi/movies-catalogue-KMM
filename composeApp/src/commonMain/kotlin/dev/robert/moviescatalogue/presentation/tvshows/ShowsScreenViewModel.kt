@@ -3,6 +3,7 @@ package dev.robert.moviescatalogue.presentation.tvshows
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.paging.PagingData
+import app.cash.paging.cachedIn
 import dev.robert.moviescatalogue.domain.usecase.GetAiringToday
 import dev.robert.moviescatalogue.domain.usecase.GetPopularSeries
 import dev.robert.moviescatalogue.domain.usecase.TrendingTvSeries
@@ -16,6 +17,7 @@ class ShowsScreenViewModel (
 ) : ViewModel() {
 
     val trendingTvSeries = trendingTvSeries()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -23,6 +25,7 @@ class ShowsScreenViewModel (
         )
 
     val popularSeries = popularTvSeries()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -30,6 +33,7 @@ class ShowsScreenViewModel (
         )
 
     val airingToday = airingToday()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

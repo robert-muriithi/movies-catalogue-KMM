@@ -25,8 +25,6 @@ data class ReviewResponse(
 data class MovieReviewResponse(
     @SerialName("author")
     val author: String,
-    @SerialName("author_details")
-    val reviewAuthorDetails: ReviewAuthorDetails,
     @SerialName("content")
     val content: String,
     @SerialName("created_at")

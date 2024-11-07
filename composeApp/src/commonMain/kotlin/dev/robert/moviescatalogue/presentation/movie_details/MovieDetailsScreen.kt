@@ -1,83 +1,113 @@
 package dev.robert.moviescatalogue.presentation.movie_details
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
+import dev.robert.moviescatalogue.domain.model.Genre
 import dev.robert.moviescatalogue.domain.model.Movie
 import dev.robert.moviescatalogue.domain.model.MovieCast
 import dev.robert.moviescatalogue.domain.model.MovieReview
 import dev.robert.moviescatalogue.domain.utils.JsonConverter
 import dev.robert.moviescatalogue.domain.utils.createImageUrl
+import dev.robert.moviescatalogue.domain.utils.formatDate
 import dev.robert.moviescatalogue.presentation.components.MovieItem
 import dev.robert.moviescatalogue.presentation.components.NetworkImage
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
+import dev.robert.moviescatalogue.presentation.components.PagingColumnUi
+import dev.robert.moviescatalogue.presentation.components.PagingRowUi
+import dev.robert.moviescatalogue.presentation.components.ReviewItem
+import kotlinx.serialization.builtins.ListSerializer
+import movies_catalogue.composeapp.generated.resources.Res
+import movies_catalogue.composeapp.generated.resources.bookmark_outline
+import movies_catalogue.composeapp.generated.resources.bookmark_filled
+import movies_catalogue.composeapp.generated.resources.placeholder
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MovieDetailsScreen(
+fun SharedTransitionScope.MovieDetailsScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
-    navController: NavController,
-    movie: String
+    jsonString: String,
+    onMovieClick: (Movie) -> Unit,
+    onNavigateToReviews: (String) -> Unit,
+    onNavigateBack: () -> Unit
 ) {
-    val viewModel : MovieDetailsViewModel = koinViewModel()
-    val movieObj = JsonConverter.fromJsonString<Movie>(movie)
+    val viewModel: MovieDetailsViewModel = koinViewModel()
+    val movieObj = JsonConverter.fromJsonString<Movie>(jsonString)
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.onEvent(MovieDetailEvent.GetMovieDetails(movieObj.id))
+        viewModel.onEvent(
+            MovieDetailEvent.GetMovieDetails(
+                movieObj.id,
+                mediaType = movieObj.mediaType
+            )
+        )
+        viewModel.onEvent(
+            MovieDetailEvent.GetSimilarMovies(
+                movieObj.id,
+                mediaType = movieObj.mediaType
+            )
+        )
+        viewModel.onEvent(
+            MovieDetailEvent.GetMovieReviews(
+                movieObj.id,
+                mediaType = movieObj.mediaType
+            )
+        )
     }
 
     val movieDetailState by viewModel.movieDetail.collectAsStateWithLifecycle()
@@ -85,40 +115,43 @@ fun MovieDetailsScreen(
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
     MovieDetailsScreenContent(
         movie = movieObj,
-        onNavigateBack = { navController.navigateUp() },
+        onNavigateBack = onNavigateBack,
         onEvent = { viewModel.onEvent(it) },
         movieDetailState = movieDetailState,
         reviews = reviews,
         similarMovies = similarMovies,
+        animatedVisibilityScope = animatedVisibilityScope,
+        modifier = modifier,
+        onMovieClick = onMovieClick,
+        onNavigateToReviews = onNavigateToReviews
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MovieDetailsScreenContent(
-    movieDetailState : MovieDetailState,
+fun SharedTransitionScope.MovieDetailsScreenContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    movieDetailState: MovieDetailState,
     similarMovies: LazyPagingItems<Movie>,
     movie: Movie,
     reviews: LazyPagingItems<MovieReview>?,
     onEvent: (MovieDetailEvent) -> Unit,
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    onMovieClick: (Movie) -> Unit,
+    modifier: Modifier = Modifier,
+    onNavigateToReviews: (String) -> Unit
 ) {
 
     val lazyListState = rememberLazyListState()
-    var scrolledY = 0f
-    var previousOffset = 0
-    val tabs = listOf(
-        "Overview",
-        "Reviews",
-        "Credits",
-        "Similar"
-    )
+    val scrolledY = 0f
 
-    val pageState = rememberPagerState(pageCount = {tabs.size})
-    val scope = rememberCoroutineScope()
     LazyColumn(
         state = lazyListState,
+        modifier = modifier
+            .sharedBounds(
+                sharedContentState = rememberSharedContentState(key = movie.posterPath + "/" + movie.id),
+                animatedVisibilityScope = animatedVisibilityScope,
+            ),
     ) {
         item {
             Box(
@@ -134,17 +167,14 @@ fun MovieDetailsScreenContent(
                             color = Color.Black.copy(alpha = 0.7f)
                         )
                         .graphicsLayer {
-                            scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
-                            translationY = scrolledY * 0.5f
-                            previousOffset = lazyListState.firstVisibleItemScrollOffset
-
                             alpha = lerp(0.5f, 1f, (scrolledY / 200).coerceIn(0f, 1f))
                             scaleX = lerp(1f, 1.5f, (scrolledY / 200).coerceIn(0f, 1f))
                             scaleY = lerp(1f, 1.5f, (scrolledY / 200).coerceIn(0f, 1f))
                         }
                 ) {
                     AsyncImage(
-                        model = movie.posterPath.createImageUrl(),
+                        model = if (movie.posterPath.isEmpty()) "https://pixy.org/src/30/302909.png"
+                        else movie.posterPath.createImageUrl(),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -154,7 +184,8 @@ fun MovieDetailsScreenContent(
                     modifier = Modifier.fillMaxWidth()
                         .align(
                             Alignment.TopStart
-                        ),
+                        )
+                        .padding(top = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -170,14 +201,14 @@ fun MovieDetailsScreenContent(
                         )
                     }
                     IconButton(
-                        onClick =  {
+                        onClick = {
                             onEvent(MovieDetailEvent.AddToSaved(movie))
                         },
                         modifier = Modifier
                             .padding(16.dp)
                     ) {
                         Icon(
-                            imageVector = if (movieDetailState.isSaved) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            painter = painterResource(resource = if (movieDetailState.isSaved) Res.drawable.bookmark_filled else Res.drawable.bookmark_outline),
                             contentDescription = "Favorite",
                             tint = Color.White
                         )
@@ -199,35 +230,28 @@ fun MovieDetailsScreenContent(
 
                             .padding(start = 16.dp)
                             .graphicsLayer {
-                                scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
-                                translationY = scrolledY * 0.5f
-                                previousOffset = lazyListState.firstVisibleItemScrollOffset
-
                                 scaleX = lerp(1f, 1f, (scrolledY / 100).coerceIn(0f, 1f))
                                 scaleY = lerp(1f, 1f, (scrolledY / 100).coerceIn(0f, 1f))
                             },
 
                         ) {
                         NetworkImage(
-                            imageUrl = movie.posterPath.createImageUrl(),
+                            imageUrl = if (movie.posterPath.isEmpty()) "https://pixy.org/src/30/302909.png"
+                            else movie.posterPath.createImageUrl(),
                             contentScale = ContentScale.Crop,
                             contentDescription = "",
-                            modifier =
-                            Modifier
-                                .fillMaxSize()
-
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                            .background(
+                                MaterialTheme.colorScheme.surface
+                            )
                             .weight(1f)
                             .padding(end = 16.dp)
-                            .graphicsLayer {
-                                scrolledY += lazyListState.firstVisibleItemScrollOffset - previousOffset
-                                translationY = scrolledY * 0.1f
-                                previousOffset = lazyListState.firstVisibleItemScrollOffset
-                            }
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth()
@@ -236,7 +260,7 @@ fun MovieDetailsScreenContent(
                             horizontalAlignment = Alignment.Start
                         ) {
                             Text(
-                                text = movie.title.ifEmpty { movie.originalTitle.ifEmpty { "No Title" } },
+                                text = movie.title.ifEmpty { movie.name.ifEmpty { "No Title" } } + " (${movie.mediaType})",
                                 color = Color.White,
                                 fontSize = 20.sp,
                                 maxLines = 1,
@@ -269,7 +293,8 @@ fun MovieDetailsScreenContent(
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
                                 Text(
-                                    text = movie.releaseDate.ifEmpty { "Unknown date" },
+                                    text = movie.releaseDate.ifEmpty { movie.firstAirDate }
+                                        .ifEmpty { "Unknown date" },
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 11.sp
                                 )
@@ -280,130 +305,173 @@ fun MovieDetailsScreenContent(
             }
         }
         item {
-            TabRow(
-                selectedTabIndex = pageState.currentPage,
-                indicator = { tabPositions ->
-                    SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(
-                            tabPositions[pageState.currentPage]
-                        ),
-                        height = 2.dp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
+            OverviewSection(
+                movie = movie,
+                movieDetailState = movieDetailState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(vertical = 8.dp, horizontal = 16.dp),
-
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        text = { Text(title) },
-                        selected = pageState.currentPage == index,
+            )
+        }
+        item {
+            CastSection(
+                credits = movieDetailState.credits,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+        item {
+            SimilarTab(
+                animatedVisibilityScope = animatedVisibilityScope,
+                similarMovies = similarMovies,
+                onMovieClick = onMovieClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+        item {
+            if (reviews?.itemCount!! > 0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Reviews",
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                        )
+                    )
+                    TextButton(
                         onClick = {
-                            scope.launch {
-                                pageState.animateScrollToPage(index)
-                            }
+                            val obj = JsonConverter.toJsonString(reviews.itemSnapshotList.items, ListSerializer(MovieReview.serializer()))
+                            onNavigateToReviews(obj)
+                        },
+                        content = {
+                            Text(
+                                text = "View All",
+                                style = TextStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Thin
+                                )
+                            )
                         }
                     )
                 }
             }
-            HorizontalPager(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                state = pageState,
-            ) { page ->
-                when (page) {
-                    0 -> OverviewTab(movie, movieDetailState)
-                    1 -> ReviewsTab(reviews = reviews)
-                    2 -> CastTab(
-                        credits = movieDetailState.credits,
-                    )
-                    3 -> SimilarTab(
-                        similarMovies = similarMovies
-                    )
-                }
+        }
+        reviews?.itemCount?.let {
+            if (it > 0) items(1) { index ->
+                val review = reviews[index]
+                ReviewItem(review)
             }
         }
     }
 }
+
+
 @Composable
-private fun CastTab(
+private fun CastSection(
     credits: List<MovieCast>,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier
-            .height(300.dp)
+            .wrapContentHeight()
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
     ) {
-        items(credits.size) { index ->
-            val cast = credits[index]
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AsyncImage(
-                    model = cast.profilePath.createImageUrl(),
-                    contentDescription = cast.name,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .padding(end = 8.dp),
-                    contentScale = ContentScale.Crop
-                )
+        Text(
+            text = "Cast",
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+        )
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items(credits.size) { index ->
+                val cast = credits[index]
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .wrapContentHeight(),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    NetworkImage(
+                        imageUrl = if (cast.profilePath.isEmpty()) "https://pixy.org/src/30/302909.png"
+                        else cast.profilePath.createImageUrl(),
+                        contentDescription = cast.name,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
                     Text(
                         text = cast.name,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = cast.character,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 14.sp,
-                        maxLines = 5,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .padding(top = 8.dp, bottom = 8.dp),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
                     )
                 }
             }
         }
     }
 }
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SimilarTab(
-    similarMovies: LazyPagingItems<Movie>?,
+fun SharedTransitionScope.SimilarTab(
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    similarMovies: LazyPagingItems<Movie>,
+    onMovieClick: (Movie) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxWidth()
-            .height(300.dp)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+    Column(
+        modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = 16.dp),
     ) {
-        similarMovies?.let { movies ->
-            items(movies.itemCount) { index ->
-                movies[index]?.let {
-                    MovieItem(
-                        movie = it,
-                        onMovieClick = {}
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Similar",
+                fontWeight = FontWeight.Bold
+            )
+            TextButton(
+                onClick = {
+
+                },
+                content = {
+                    Text(
+                        text = "View All",
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Thin
+                        )
                     )
                 }
-            }
+            )
         }
+        PagingRowUi(
+            data = similarMovies,
+            content = { movie ->
+                MovieItem(
+                    movie = movie,
+                    onMovieClick = onMovieClick,
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    sharedTransitionKey = movie.posterPath + "/" + movie.id
+                )
+            }
+        )
     }
 }
 
@@ -413,55 +481,37 @@ fun ReviewsTab(
     modifier: Modifier = Modifier,
     reviews: LazyPagingItems<MovieReview>?
 ) {
+
     LazyColumn(
-        modifier = modifier.fillMaxWidth()
-            .height(300.dp)
+        modifier = modifier
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item {
+
+        }
         reviews?.let { reviews ->
-            items(reviews.itemCount) { index ->
-                val review = reviews[index]
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp, bottom = 8.dp)
-                ) {
-                    Text(
-                        text = review?.author ?: "Unknown",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = review?.content ?: "No content",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 14.sp,
-                        maxLines = 5,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .padding(top = 8.dp, bottom = 8.dp),
-                    )
-                }
-            }
+
         }
     }
 }
 
 
 @Composable
-fun OverviewTab(movie: Movie, movieDetailState: MovieDetailState, modifier: Modifier = Modifier) {
+fun OverviewSection(
+    movie: Movie,
+    movieDetailState: MovieDetailState,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = modifier.fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
         Text(
             text = "Overview",
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
@@ -473,140 +523,72 @@ fun OverviewTab(movie: Movie, movieDetailState: MovieDetailState, modifier: Modi
             modifier = Modifier
                 .padding(top = 8.dp, bottom = 8.dp),
         )
-        Text(
-            text = "Genres",
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-        movieDetailState.movieDetails.genres?.let { genres ->
-            LazyRow(
-                modifier = Modifier.fillMaxWidth()
-                    .height(50.dp)
-                    .padding(bottom = 8.dp),
-            ) {
-                items(genres.size) { index ->
-                    Box(
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(40.dp)
+        ) {
+            Column {
+                Text(
+                    text = "Release Date",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = movie.releaseDate.ifEmpty { movie.firstAirDate }
+                        .ifEmpty { "Unknown date" },
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 14.sp,
+                    maxLines = 5,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                )
+
+            }
+            Column {
+                movieDetailState.movieDetails.genres?.let { genres ->
+                    Text(
+                        text = "Genres",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+                    GenresRow(
+                        genres = genres,
                         modifier = Modifier
-                            .padding(end = 8.dp, top = 8.dp)
-                            .wrapContentWidth()
+                            .padding(2.dp)
                             .background(
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = MaterialTheme.shapes.small
-                            ),
-                    ) {
-                        Text(
-                            text = genres[index].name,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(5.dp)
-                        )
-                    }
+                                MaterialTheme.colorScheme.inversePrimary.copy(alpha = 0.5f),
+                                MaterialTheme.shapes.small
+                            ).padding(4.dp)
+                    )
                 }
             }
         }
-        movieDetailState.movieDetails.originalTitle?.let {
-            Text(
-                text = "Original Title",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 8.dp),
-            )
-        }
-        movieDetailState.movieDetails.releaseDate?.let {
-            Text(
-                text = "Release Date",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 8.dp),
-            )
-        }
-        movieDetailState.movieDetails.runtime?.let {
-            Text(
-                text = "Runtime",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "$it minutes",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 8.dp),
-            )
-        }
-        movieDetailState.movieDetails.status?.let {
-            Text(
-                text = "Status",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 8.dp),
-            )
-        }
-        movieDetailState.movieDetails.tagline?.let {
-            Text(
-                text = "Tagline",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 8.dp),
-            )
-        }
-        movieDetailState.movieDetails.originalLanguage?.let {
-            Text(
-                text = "Original Language",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
-                maxLines = 5,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(top = 8.dp, bottom = 8.dp),
-            )
-        }
     }
+}
+
+
+@Composable
+fun GenresRow(
+    genres: List<Genre>,
+    modifier: Modifier = Modifier
+) {
+    LazyRow(
+        content = {
+            items(genres.size) { index ->
+                Box(
+                    modifier = modifier
+
+                ) {
+                    Text(
+                        text = genres[index].name,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                    )
+                }
+            }
+        },
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    )
 }

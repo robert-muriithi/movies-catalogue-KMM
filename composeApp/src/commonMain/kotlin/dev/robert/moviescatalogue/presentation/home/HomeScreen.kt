@@ -1,5 +1,8 @@
 package dev.robert.moviescatalogue.presentation.home
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,10 +36,13 @@ import dev.robert.moviescatalogue.presentation.components.TrendingMoviesHorizont
 import dev.robert.moviescatalogue.presentation.components.MovieItem
 import dev.robert.moviescatalogue.presentation.components.PagingRowUi
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun HomeScreen(
-    navController: NavController,
+fun SharedTransitionScope.HomeScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     onNavigateToMovieDetails: (Movie) -> Unit,
+    onNavigateToViewAll: (String) -> Unit,
+    onNavigateToSearch: () -> Unit
 ) {
     val viewModel = koinViewModel<HomeScreenViewModel>()
     val weeklyTrending = viewModel.weeklyTrending.collectAsLazyPagingItems()
@@ -51,19 +57,25 @@ fun HomeScreen(
         topRatedTvSeries = topRatedTvSeries,
         upcomingMovies = upcomingMovies,
         onMovieClick = onNavigateToMovieDetails,
+        onNavigateToViewAll = onNavigateToViewAll,
+        onNavigateToSearch = onNavigateToSearch,
+        animatedVisibilityScope = animatedVisibilityScope
     )
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun HomeScreenContent(
+fun SharedTransitionScope.HomeScreenContent(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     discover: LazyPagingItems<Movie>,
     topRatedMovies: LazyPagingItems<Movie>,
     topRatedTvSeries: LazyPagingItems<Movie>,
     upcomingMovies: LazyPagingItems<Movie>,
     modifier: Modifier = Modifier,
-    onMovieClick: (Movie) -> Unit
+    onMovieClick: (Movie) -> Unit,
+    onNavigateToViewAll: (String) -> Unit,
+    onNavigateToSearch: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -72,7 +84,7 @@ fun HomeScreenContent(
                     Text(text = "Movies Catalogue - KMM")
                 },
                 actions = {
-                    IconButton(onClick = {}, content = {
+                    IconButton(onClick = onNavigateToSearch, content = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search"
@@ -92,12 +104,11 @@ fun HomeScreenContent(
                         text = "Weekly Trending Movies",
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
                         )
                     )
                     TrendingMoviesHorizontalPager(
                         weeksTrending = discover,
-                        onMovieClick = onMovieClick
+                        onMovieClick = onMovieClick,
                     )
                 }
             }
@@ -115,12 +126,11 @@ fun HomeScreenContent(
                             text = "Top Rated Movies",
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
                             )
                         )
                         TextButton(
                             onClick = {
-
+                                onNavigateToViewAll("top_rated_movies")
                             },
                             content = {
                                 Text(
@@ -136,7 +146,7 @@ fun HomeScreenContent(
                     PagingRowUi(
                         data = topRatedMovies,
                         content = { movie ->
-                            MovieItem(movie = movie, onMovieClick = onMovieClick)
+                            MovieItem(movie = movie, onMovieClick = onMovieClick, animatedVisibilityScope = animatedVisibilityScope, sharedTransitionKey = movie.posterPath +"/" + movie.id)
                         }
                     )
                 }
@@ -156,12 +166,11 @@ fun HomeScreenContent(
                             text = "Top Rated TV Series",
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
                             )
                         )
                         TextButton(
                             onClick = {
-
+                                onNavigateToViewAll("top_rated_tv_series")
                             },
                             content = {
                                 Text(
@@ -177,7 +186,7 @@ fun HomeScreenContent(
                     PagingRowUi(
                         data = topRatedTvSeries,
                         content = { movie ->
-                            MovieItem(movie = movie, onMovieClick = onMovieClick)
+                            MovieItem(movie = movie, onMovieClick = onMovieClick, animatedVisibilityScope = animatedVisibilityScope, sharedTransitionKey = movie.posterPath +"/" + movie.id)
                         }
                     )
                 }
@@ -197,12 +206,11 @@ fun HomeScreenContent(
                             text = "Upcoming Movies",
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
                             )
                         )
                         TextButton(
                             onClick = {
-
+                                onNavigateToViewAll("upcoming_movies")
                             },
                             content = {
                                 Text(
@@ -218,7 +226,7 @@ fun HomeScreenContent(
                     PagingRowUi(
                         data = upcomingMovies,
                         content = { movie ->
-                            MovieItem(movie = movie, onMovieClick = onMovieClick)
+                            MovieItem(movie = movie, onMovieClick = onMovieClick, animatedVisibilityScope = animatedVisibilityScope, sharedTransitionKey = movie.posterPath +"/" + movie.id)
                         }
                     )
                 }

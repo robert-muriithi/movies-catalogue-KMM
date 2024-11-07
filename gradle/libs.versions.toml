@@ -5,10 +5,10 @@ android-minSdk = "24"
 android-targetSdk = "34"
 androidx-activityCompose = "1.9.3"
 androidx-appcompat = "1.7.0"
-androidx-constraintlayout = "2.1.4"
-androidx-core-ktx = "1.13.1"
+androidx-constraintlayout = "2.2.0"
+androidx-core-ktx = "1.15.0"
 androidx-espresso-core = "3.6.1"
-androidx-lifecycle = "2.8.0"
+androidx-lifecycle = "2.8.2"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 #coil = "2.7.0"
@@ -29,15 +29,18 @@ pagingComposeCommon = "3.3.0-alpha02-0.4.0"
 stately = "2.0.0"
 ktor = "3.0.0-beta-2"
 kotlinParcelize = "2.0.20-Beta2"
-roomCommon = "2.7.0-alpha10"
+roomCommon = "2.7.0-alpha11"
 ksp = "2.0.20-1.0.25"
-sqliteBundled = "2.5.0-alpha10"
+sqliteBundled = "2.5.0-alpha11"
+composeAnimation = "1.7.5"
 
 
 [libraries]
 coil-core = { module = "io.coil-kt.coil3:coil", version.ref = "coilCompose" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
+
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "composeAnimation" }
 
 image-loader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "imageLoaderExtensionComposeResources" }
 image-loader-extension-compose-resources = { module = "io.github.qdsfdhvh:image-loader-extension-compose-resources", version.ref = "imageLoaderExtensionComposeResources" }
@@ -57,10 +60,6 @@ androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
 multiplatform-settings-coroutine = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatform-settings"}
 
-# voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
-# voyager-screen-models = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyagerVersion" }
-# voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
-# voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
 
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCore" }

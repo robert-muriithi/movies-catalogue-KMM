@@ -7,10 +7,12 @@ import app.cash.paging.map
 import dev.robert.moviescatalogue.data.ApiService
 import dev.robert.moviescatalogue.data.constants.Constants.PAGING_SIZE
 import dev.robert.moviescatalogue.data.database.SavedMoviesDatabase
+import dev.robert.moviescatalogue.data.dto.SearchResult
 import dev.robert.moviescatalogue.data.pager.AiringTodayPagingSource
 import dev.robert.moviescatalogue.data.pager.DiscoverMoviesPagingSource
 import dev.robert.moviescatalogue.data.pager.DiscoverTvSeriesPagingSource
 import dev.robert.moviescatalogue.data.pager.MovieReviewsPagingDataSource
+import dev.robert.moviescatalogue.data.pager.MultiSearchPagingSource
 import dev.robert.moviescatalogue.data.pager.NowPlayingMoviesPagingSource
 import dev.robert.moviescatalogue.data.pager.PopularMoviesPagingSource
 import dev.robert.moviescatalogue.data.pager.PopularTvSeriesPagingSource
@@ -31,8 +33,13 @@ import dev.robert.moviescatalogue.domain.model.Movie
 import dev.robert.moviescatalogue.domain.model.MovieCast
 import dev.robert.moviescatalogue.domain.model.MovieDetails
 import dev.robert.moviescatalogue.domain.model.MovieReview
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class MoviesRepositoryImpl(
@@ -203,26 +210,21 @@ class MoviesRepositoryImpl(
         }
     }
 
-    override fun getMovieDetails(movieId: Int): Flow<MovieDetails> {
+    override fun getMovieDetails(movieId: Int, isMovie: Boolean): Flow<MovieDetails> {
         return flow {
-            emit(moviesApi.getMovieDetails(movieId).toMovieDetails())
+            emit(moviesApi.getMovieDetails(movieId, isMovie).toMovieDetails())
         }
     }
 
-    override fun getTvSeriesDetails(tvSeriesId: Int): Flow<MovieDetails> {
-        return flow {
-            emit(moviesApi.getTvSeriesDetails(tvSeriesId).toMovieDetails())
-        }
-    }
 
-    override fun getMovieReviews(movieId: Int): Flow<PagingData<MovieReview>> {
+    override fun getMovieReviews(isMovie: Boolean, movieId: Int): Flow<PagingData<MovieReview>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGING_SIZE,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                MovieReviewsPagingDataSource(moviesApi)
+                MovieReviewsPagingDataSource(api = moviesApi, movieId = movieId, isMovie = isMovie)
             }
         ).flow.map { pagingData ->
             pagingData.map { movieReviewResponse ->
@@ -231,20 +233,20 @@ class MoviesRepositoryImpl(
         }
     }
 
-    override fun getMovieCredits(movieId: Int): Flow<List<MovieCast>> {
+    override fun getMovieCredits(isMovie: Boolean, movieId: Int): Flow<List<MovieCast>> {
         return flow{
-            emit(moviesApi.getMovieCredits(movieId).cast.toMovieCasts())
+            emit(moviesApi.getMovieCredits(movieId = movieId, isMovie = isMovie).castResponse.toMovieCasts())
         }
     }
 
-    override fun getSimilarMovies(movieId: Int): Flow<PagingData<Movie>> {
+    override fun getSimilarMovies(movieId: Int, isMovie: Boolean): Flow<PagingData<Movie>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGING_SIZE,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                SimilarMoviesPagingSource(moviesApi)
+                SimilarMoviesPagingSource(apiService = moviesApi, movieId = movieId, isMovie = isMovie)
             }
         ).flow.map { pagingData ->
             pagingData.map { movieResponse ->
@@ -297,5 +299,22 @@ class MoviesRepositoryImpl(
         return database.savedMovieDao().getAll().map { movies ->
             movies.map { it.toMovie() }
         }
+    }
+
+
+    override fun multiSearch(query: String): Flow<PagingData<SearchResult>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGING_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = {
+                MultiSearchPagingSource(moviesApi, query)
+            }
+        ).flow
+    }
+
+    override fun isSaved(movieId: Int): Flow<Boolean> {
+        return database.savedMovieDao().isSaved(movieId)
     }
 }

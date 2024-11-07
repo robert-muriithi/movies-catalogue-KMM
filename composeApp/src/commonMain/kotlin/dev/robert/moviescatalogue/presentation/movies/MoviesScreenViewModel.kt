@@ -3,6 +3,7 @@ package dev.robert.moviescatalogue.presentation.movies
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.paging.PagingData
+import app.cash.paging.cachedIn
 import dev.robert.moviescatalogue.domain.usecase.GetPopularMovies
 import dev.robert.moviescatalogue.domain.usecase.NowPlayingMovies
 import dev.robert.moviescatalogue.domain.usecase.TodayTrendingMovies
@@ -17,6 +18,7 @@ class MoviesScreenViewModel(
 ) : ViewModel() {
 
     val nowPlayingMovies = nowPlayingMovies()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -24,6 +26,7 @@ class MoviesScreenViewModel(
         )
 
     val popularMovies = popularMovies()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
@@ -31,6 +34,7 @@ class MoviesScreenViewModel(
         )
 
     val trendingMovies = trendingMovies()
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

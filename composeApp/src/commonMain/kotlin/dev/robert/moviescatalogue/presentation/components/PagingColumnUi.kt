@@ -27,10 +27,11 @@ import okio.IOException
 @Composable
 fun <T : Any> PagingColumnUi(
     data: LazyPagingItems<T>,
-    content: @Composable (T) -> Unit
+    content: @Composable (T) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(5.dp),
         columns = GridCells.Fixed(3),

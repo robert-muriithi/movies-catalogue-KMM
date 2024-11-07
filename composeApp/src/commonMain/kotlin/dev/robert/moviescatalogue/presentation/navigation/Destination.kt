@@ -2,14 +2,16 @@ package dev.robert.moviescatalogue.presentation.navigation
 
 import kotlinx.serialization.Serializable
 import movies_catalogue.composeapp.generated.resources.Res
-import movies_catalogue.composeapp.generated.resources.ic_bookmark_boarder
-import movies_catalogue.composeapp.generated.resources.ic_bookmark_filled
+import movies_catalogue.composeapp.generated.resources.bookmark_outline
+import movies_catalogue.composeapp.generated.resources.bookmark_filled
 import movies_catalogue.composeapp.generated.resources.ic_folder_filled
 import movies_catalogue.composeapp.generated.resources.ic_folder_outline
-import movies_catalogue.composeapp.generated.resources.ic_home
+import movies_catalogue.composeapp.generated.resources.home_filled
+import movies_catalogue.composeapp.generated.resources.home_outline
 import movies_catalogue.composeapp.generated.resources.ic_play_filled
 import movies_catalogue.composeapp.generated.resources.ic_play_outline
-import movies_catalogue.composeapp.generated.resources.ic_settings
+import movies_catalogue.composeapp.generated.resources.settings_filled
+import movies_catalogue.composeapp.generated.resources.settings_outline
 import org.jetbrains.compose.resources.DrawableResource
 
 
@@ -29,6 +31,10 @@ sealed class Destination {
     data object SearchScreen : Destination()
     @Serializable
     data object SettingsScreen : Destination()
+    @Serializable
+    data class ViewAllScreen(val type: String) : Destination()
+    @Serializable
+    data class ReviewsScreen(val reviews: String) : Destination()
 }
 
 
@@ -40,8 +46,8 @@ enum class BottomNavItem(
 ) {
      Home(
          title = "Home",
-         selectedIcon = Res.drawable.ic_home,
-         unselectedIcon = Res.drawable.ic_home,
+         selectedIcon = Res.drawable.home_filled,
+         unselectedIcon = Res.drawable.home_outline,
          route = Destination.HomeScreen
      ),
      Movies("Movies",
@@ -56,13 +62,13 @@ enum class BottomNavItem(
     ),
     Saved(
         title = "Saved",
-        selectedIcon = Res.drawable.ic_bookmark_filled,
-        unselectedIcon = Res.drawable.ic_bookmark_boarder,
+        selectedIcon = Res.drawable.bookmark_filled,
+        unselectedIcon = Res.drawable.bookmark_outline,
         route = Destination.SavedScreen
     ),
     Settings("Settings",
-        selectedIcon = Res.drawable.ic_settings,
-        unselectedIcon = Res.drawable.ic_settings,
+        selectedIcon = Res.drawable.settings_filled,
+        unselectedIcon = Res.drawable.settings_outline,
         route = Destination.SettingsScreen
     )
 }

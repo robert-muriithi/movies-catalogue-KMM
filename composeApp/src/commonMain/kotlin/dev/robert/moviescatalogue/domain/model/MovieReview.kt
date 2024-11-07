@@ -1,10 +1,10 @@
 package dev.robert.moviescatalogue.domain.model
 
-import dev.robert.moviescatalogue.data.dto.ReviewAuthorDetails
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MovieReview(
     val author: String,
-    val reviewAuthorDetails: ReviewAuthorDetails,
     val content: String,
     val createdAt: String,
     val id: String,

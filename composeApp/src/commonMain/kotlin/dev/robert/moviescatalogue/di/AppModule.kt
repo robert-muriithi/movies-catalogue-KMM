@@ -17,18 +17,21 @@ import dev.robert.moviescatalogue.domain.usecase.GetPopularSeries
 import dev.robert.moviescatalogue.domain.usecase.GetSimilarMovies
 import dev.robert.moviescatalogue.domain.usecase.GetTrendingUseCase
 import dev.robert.moviescatalogue.domain.usecase.MovieDetails
+import dev.robert.moviescatalogue.domain.usecase.MultiSearchUseCase
 import dev.robert.moviescatalogue.domain.usecase.NowPlayingMovies
 import dev.robert.moviescatalogue.domain.usecase.RemoveFromSaved
+import dev.robert.moviescatalogue.domain.usecase.SavedStatus
 import dev.robert.moviescatalogue.domain.usecase.TodayTrendingMovies
 import dev.robert.moviescatalogue.domain.usecase.TopRatedMovies
 import dev.robert.moviescatalogue.domain.usecase.TopRatedTvSeries
 import dev.robert.moviescatalogue.domain.usecase.TrendingTvSeries
-import dev.robert.moviescatalogue.domain.usecase.TvSeriesDetails
 import dev.robert.moviescatalogue.domain.usecase.UpcomingMovies
 import dev.robert.moviescatalogue.presentation.home.HomeScreenViewModel
+import dev.robert.moviescatalogue.presentation.home.view_all.ViewAllViewModel
 import dev.robert.moviescatalogue.presentation.movies.MoviesScreenViewModel
 import dev.robert.moviescatalogue.presentation.movie_details.MovieDetailsViewModel
 import dev.robert.moviescatalogue.presentation.saved.SavedMoviesViewModel
+import dev.robert.moviescatalogue.presentation.search.SearchScreenViewModel
 import dev.robert.moviescatalogue.presentation.tvshows.ShowsScreenViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -36,6 +39,7 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.KoinApplication
@@ -48,7 +52,18 @@ import org.koin.dsl.module
 
 expect val targetModule: Module
 
-val sharedModule = module {
+val sharedModule get() = module {
+        includes(
+            httpClientModule,
+            databaseModule,
+            apiServiceModule,
+            repositoryModule,
+            useCaseModules,
+            viewModelModules
+        )
+}
+
+val httpClientModule = module {
     single {
         HttpClient {
             install(ContentNegotiation) {
@@ -61,19 +76,25 @@ val sharedModule = module {
                 )
             }
             install(Logging) {
-                logger = Logger.DEFAULT
+                logger = Logger.SIMPLE
                 level = LogLevel.ALL
             }
         }
     }
+}
+
+val databaseModule = module {
     single { getRoomDatabase(get()) }
-    // Api service
+}
+
+val apiServiceModule = module {
     singleOf(::MoviesApiServiceImpl) { bind<ApiService>() }
-
-    // Repositories
+}
+val repositoryModule = module {
     singleOf(::MoviesRepositoryImpl) { bind<MoviesRepository>() }
+}
 
-    // UseCases
+val useCaseModules = module {
     singleOf(::TodayTrendingMovies) { bind<TodayTrendingMovies>() }
     singleOf(::GetPopularMovies) { bind<GetPopularMovies>() }
     singleOf(::GetDiscoverMovies) { bind<GetDiscoverMovies>() }
@@ -83,7 +104,6 @@ val sharedModule = module {
     singleOf(::TopRatedMovies) { bind<TopRatedMovies>() }
     singleOf(::TopRatedTvSeries) { bind<TopRatedTvSeries>() }
     singleOf(::TrendingTvSeries) { bind<TrendingTvSeries>() }
-    singleOf(::TvSeriesDetails) { bind<TvSeriesDetails>() }
     singleOf(::UpcomingMovies) { bind<UpcomingMovies>() }
     singleOf(::GetMovieDetails) { bind<GetMovieDetails>() }
     singleOf(::GetMovieReviews) { bind<GetMovieReviews>() }
@@ -94,13 +114,18 @@ val sharedModule = module {
     singleOf(::GetPopularSeries) { bind<GetPopularSeries>() }
     singleOf(::RemoveFromSaved) { bind<RemoveFromSaved>() }
     singleOf(::AddMovieToSaved) { bind<AddMovieToSaved>() }
+    singleOf(::MultiSearchUseCase) { bind<MultiSearchUseCase>() }
+    singleOf(::SavedStatus) { bind<SavedStatus>() }
+}
 
-    // ViewModels
+val viewModelModules = module {
     viewModelOf(::HomeScreenViewModel)
     viewModelOf(::MoviesScreenViewModel)
     viewModelOf(::MovieDetailsViewModel)
     viewModelOf(::SavedMoviesViewModel)
     viewModelOf(::ShowsScreenViewModel)
+    viewModelOf(::ViewAllViewModel)
+    viewModelOf(::SearchScreenViewModel)
 }
 
 fun initializeKoin(
