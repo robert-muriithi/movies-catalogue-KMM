@@ -35,6 +35,8 @@ sealed class Destination {
     data class ViewAllScreen(val type: String) : Destination()
     @Serializable
     data class ReviewsScreen(val reviews: String) : Destination()
+    @Serializable
+    data class SimilarMoviesScreen(val movieId: Int, val mediaType: String) : Destination()
 }
 
 
