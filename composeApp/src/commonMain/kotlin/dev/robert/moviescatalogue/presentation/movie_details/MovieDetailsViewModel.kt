@@ -1,16 +1,13 @@
 package dev.robert.moviescatalogue.presentation.movie_details
 
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.paging.PagingData
-import app.cash.paging.flatMap
-import app.cash.paging.map
+import app.cash.paging.cachedIn
 import dev.robert.moviescatalogue.domain.model.Movie
 import dev.robert.moviescatalogue.domain.model.MovieCast
 import dev.robert.moviescatalogue.domain.model.MovieDetails
 import dev.robert.moviescatalogue.domain.model.MovieReview
-import dev.robert.moviescatalogue.domain.repository.MoviesRepository
 import dev.robert.moviescatalogue.domain.usecase.AddMovieToSaved
 import dev.robert.moviescatalogue.domain.usecase.GetMovieCredits
 import dev.robert.moviescatalogue.domain.usecase.GetMovieDetails
@@ -25,8 +22,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -68,6 +63,7 @@ class MovieDetailsViewModel(
         MutableStateFlow(PagingData.empty())
 
     val similarMovies: StateFlow<PagingData<Movie>> = _similarMovies
+        .cachedIn(viewModelScope)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),

@@ -7,7 +7,6 @@ import app.cash.paging.cachedIn
 import dev.robert.moviescatalogue.domain.usecase.GetPopularMovies
 import dev.robert.moviescatalogue.domain.usecase.NowPlayingMovies
 import dev.robert.moviescatalogue.domain.usecase.TodayTrendingMovies
-import dev.robert.moviescatalogue.domain.usecase.TopRatedMovies
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
