@@ -58,6 +58,7 @@ import dev.robert.moviescatalogue.presentation.reviews.ReviewsScreen
 import dev.robert.moviescatalogue.presentation.saved.SavedScreen
 import dev.robert.moviescatalogue.presentation.search.SearchScreen
 import dev.robert.moviescatalogue.presentation.settings.SettingsScreen
+import dev.robert.moviescatalogue.presentation.similar.SimilarMoviesScreen
 import dev.robert.moviescatalogue.presentation.tvshows.ShowsScreen
 import dev.robert.moviescatalogue.theme.AppTheme
 import org.jetbrains.compose.resources.painterResource
@@ -164,6 +165,9 @@ fun App() {
                                     },
                                     onNavigateToReviews = { reviews ->
                                         navController.navigate(Destination.ReviewsScreen(reviews = reviews))
+                                    },
+                                    onNavigateToSimilar =  { movieId, mediaType ->
+                                        navController.navigate(Destination.SimilarMoviesScreen(movieId = movieId, mediaType = mediaType))
                                     }
                                 )
                             }
@@ -221,6 +225,23 @@ fun App() {
                                         navController.navigateUp()
                                     },
                                     animatedVisibilityScope = this,
+                                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
+                                )
+                            }
+
+                            composable<Destination.SimilarMoviesScreen> { navBackStackEntry ->
+                                val args = navBackStackEntry.toRoute<Destination.SimilarMoviesScreen>()
+                                SimilarMoviesScreen(
+                                    animatedVisibilityScope = this,
+                                    onNavigateToMovieDetails = { movie ->
+                                        val movieObj = JsonConverter.toJsonString(movie, Movie.serializer())
+                                        navController.navigate(Destination.MovieDetailsScreen(movie = movieObj))
+                                    },
+                                    onNavigateBack = {
+                                        navController.navigateUp()
+                                    },
+                                    movieId = args.movieId,
+                                    mediaType = args.mediaType,
                                     modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                                 )
                             }

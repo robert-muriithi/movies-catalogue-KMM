@@ -84,7 +84,8 @@ fun SharedTransitionScope.MovieDetailsScreen(
     jsonString: String,
     onMovieClick: (Movie) -> Unit,
     onNavigateToReviews: (String) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToSimilar: (Int, String) -> Unit
 ) {
     val viewModel: MovieDetailsViewModel = koinViewModel()
     val movieObj = JsonConverter.fromJsonString<Movie>(jsonString)
@@ -123,7 +124,10 @@ fun SharedTransitionScope.MovieDetailsScreen(
         animatedVisibilityScope = animatedVisibilityScope,
         modifier = modifier,
         onMovieClick = onMovieClick,
-        onNavigateToReviews = onNavigateToReviews
+        onNavigateToReviews = onNavigateToReviews,
+        onNavigateToSimilar = onNavigateToSimilar,
+        mediaType = movieObj.mediaType,
+        movieId = movieObj.id
     )
 }
 
@@ -131,9 +135,12 @@ fun SharedTransitionScope.MovieDetailsScreen(
 @Composable
 fun SharedTransitionScope.MovieDetailsScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
+    mediaType: String,
+    movieId: Int,
     movieDetailState: MovieDetailState,
     similarMovies: LazyPagingItems<Movie>,
     movie: Movie,
+    onNavigateToSimilar: (Int, String) -> Unit,
     reviews: LazyPagingItems<MovieReview>?,
     onEvent: (MovieDetailEvent) -> Unit,
     onNavigateBack: () -> Unit,
@@ -324,8 +331,11 @@ fun SharedTransitionScope.MovieDetailsScreenContent(
                 animatedVisibilityScope = animatedVisibilityScope,
                 similarMovies = similarMovies,
                 onMovieClick = onMovieClick,
+                onNavigateToSimilar = onNavigateToSimilar,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                mediaType = mediaType,
+                movieId = movieId
             )
         }
         item {
@@ -429,8 +439,11 @@ private fun CastSection(
 @Composable
 fun SharedTransitionScope.SimilarTab(
     animatedVisibilityScope: AnimatedVisibilityScope,
+    mediaType: String,
+    movieId: Int,
     similarMovies: LazyPagingItems<Movie>,
     onMovieClick: (Movie) -> Unit,
+    onNavigateToSimilar: (Int, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -448,7 +461,7 @@ fun SharedTransitionScope.SimilarTab(
             )
             TextButton(
                 onClick = {
-
+                    onNavigateToSimilar(movieId, mediaType)
                 },
                 content = {
                     Text(
