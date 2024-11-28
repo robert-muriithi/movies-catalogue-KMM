@@ -10,5 +10,17 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
 * `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
+# Screenshots
+<img src="ss/1730923811879.jpeg" width="1000"/>
+<img src="ss/1730923816155.jpeg" width="1000"/>
+<img src="ss/1730923817348.jpeg" width="1000"/>
+
+# Key Highlights
+1. **Paging3** for smooth, efficient movie loading from TMDB API 
+2. **Ktor** for robust networking 
+3. **Room DB** to store favorite movies offline 
+4. **Shared Element Transition** for an enhanced user experience, allowing smoother visual transitions between screens!
+5. **DataStore** Preferences
+
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
