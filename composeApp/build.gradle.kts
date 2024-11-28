@@ -85,6 +85,7 @@ kotlin {
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+            implementation(libs.datastore)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

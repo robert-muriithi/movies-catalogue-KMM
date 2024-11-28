@@ -1,8 +1,10 @@
 package dev.robert.moviescatalogue.di
 
+import dev.robert.moviescatalogue.MainViewModel
 import dev.robert.moviescatalogue.data.ApiService
 import dev.robert.moviescatalogue.data.MoviesApiServiceImpl
 import dev.robert.moviescatalogue.data.database.getRoomDatabase
+import dev.robert.moviescatalogue.data.datastore.MoviesCataloguePrefs
 import dev.robert.moviescatalogue.domain.repository.MoviesRepository
 import dev.robert.moviescatalogue.data.repository.MoviesRepositoryImpl
 import dev.robert.moviescatalogue.domain.usecase.AddMovieToSaved
@@ -32,6 +34,7 @@ import dev.robert.moviescatalogue.presentation.movies.MoviesScreenViewModel
 import dev.robert.moviescatalogue.presentation.movie_details.MovieDetailsViewModel
 import dev.robert.moviescatalogue.presentation.saved.SavedMoviesViewModel
 import dev.robert.moviescatalogue.presentation.search.SearchScreenViewModel
+import dev.robert.moviescatalogue.presentation.settings.SettingsViewModel
 import dev.robert.moviescatalogue.presentation.tvshows.ShowsScreenViewModel
 import dev.robert.moviescatalogue.presentation.similar.SimilarScreenViewModel
 import io.ktor.client.HttpClient
@@ -48,6 +51,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 expect val targetModule: Module
@@ -59,7 +63,8 @@ val sharedModule get() = module {
             apiServiceModule,
             repositoryModule,
             useCaseModules,
-            viewModelModules
+            viewModelModules,
+            prefs
         )
 }
 
@@ -127,6 +132,18 @@ val viewModelModules = module {
     viewModelOf(::ViewAllViewModel)
     viewModelOf(::SearchScreenViewModel)
     viewModelOf(::SimilarScreenViewModel)
+    viewModelOf(::SettingsViewModel)
+    viewModelOf(::MainViewModel)
+}
+
+//val dataStoreModule = module {
+//    single {
+//        createDataStore(producePath = { dataStoreFileName })
+//    }
+//}
+
+val prefs = module {
+    single { MoviesCataloguePrefs(get()) }
 }
 
 fun initializeKoin(

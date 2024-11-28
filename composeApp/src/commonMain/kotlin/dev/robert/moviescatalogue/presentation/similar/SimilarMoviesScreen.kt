@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.collectAsLazyPagingItems
 import dev.robert.moviescatalogue.domain.model.Movie
-import dev.robert.moviescatalogue.koinViewModel
 import dev.robert.moviescatalogue.presentation.components.MovieItem
 import dev.robert.moviescatalogue.presentation.components.PagingColumnUi
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable

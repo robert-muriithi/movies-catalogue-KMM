@@ -33,6 +33,7 @@ roomCommon = "2.7.0-alpha11"
 ksp = "2.0.20-1.0.25"
 sqliteBundled = "2.5.0-alpha11"
 composeAnimation = "1.7.5"
+datastore = "1.1.1"
 
 
 [libraries]
@@ -92,6 +93,7 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomCommon" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCommon" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled"}
+datastore = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
