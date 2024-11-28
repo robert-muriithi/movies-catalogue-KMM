@@ -16,11 +16,14 @@ import io.ktor.client.request.parameter
 class MoviesApiServiceImpl(
     private val httpClient: HttpClient
 ) : ApiService {
+    companion object {
+        private const val API_KEY = "YOUR_API_KEY"
+    }
     override suspend fun getTrendingTodayMovies(page: Int): MoviesResponse {
         return try {
             httpClient.get("${BASEURL}trending/movie/day") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -32,7 +35,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}movie/popular") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -44,7 +47,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}tv/popular"){
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception){
@@ -56,7 +59,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}tv/airing_today"){
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
@@ -68,7 +71,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}movie/upcoming") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -80,7 +83,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}movie/top_rated") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -92,7 +95,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}movie/now_playing") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -104,7 +107,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}trending/tv/day") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -116,7 +119,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}tv/top_rated") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -128,7 +131,7 @@ class MoviesApiServiceImpl(
         return try {
             val url = if (isMovie) "movie" else "tv"
             httpClient.get("${BASEURL}$url/$movieId") {
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         } catch (e: Exception) {
@@ -141,7 +144,7 @@ class MoviesApiServiceImpl(
         val url = if (isMovie) "movie" else "tv"
         return try {
             httpClient.get("${BASEURL}$url/$movieId/credits"){
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
@@ -153,7 +156,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}genre/movie/list"){
                 parameter("api_key",
-                    "211a895b98fff91aefbcf2d7d4c624c2")
+                    API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
@@ -165,7 +168,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}genre/tv/list"){
                 parameter("api_key",
-                    "211a895b98fff91aefbcf2d7d4c624c2")
+                    API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
@@ -178,7 +181,7 @@ class MoviesApiServiceImpl(
             httpClient.get("${BASEURL}search/multi"){
                 parameter("page", page)
                 parameter("query", query)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
             }.body()
         }catch (e: Exception){
             throw e
@@ -189,7 +192,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}discover/movie"){
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
@@ -201,7 +204,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}discover/tv"){
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
@@ -214,7 +217,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}$url/$movieId/reviews"){
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
@@ -227,7 +230,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}$url/$movieId/similar") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         }
@@ -240,7 +243,7 @@ class MoviesApiServiceImpl(
         return try {
             httpClient.get("${BASEURL}trending/all/$window") {
                 parameter("page", page)
-                parameter("api_key", "211a895b98fff91aefbcf2d7d4c624c2")
+                parameter("api_key", API_KEY)
                 parameter("language", "en")
             }.body()
         }catch (e: Exception){
